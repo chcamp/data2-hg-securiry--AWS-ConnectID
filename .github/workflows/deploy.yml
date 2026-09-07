@@ -65,6 +65,13 @@ jobs:
           path: ./dist
       - name: Output contents
         run: ls
+      - name: Show GitHub OIDC context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Repository ID: ${{ github.repository_id }}"
+          echo "Repository owner ID: ${{ github.repository_owner_id }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
       - name: Get AWS Permissions
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -79,7 +86,7 @@ jobs:
         with:
           bucket: gha-security-hosting-demo-chcamp
           dist-folder: ./dist
-          # bucket-region: us-east-2 . .
+          # bucket-region: us-east-2 . . >
       - name: Output information
         run: |
           echo "Live URL: ${{ steps.deploy.outputs.website-url }}"

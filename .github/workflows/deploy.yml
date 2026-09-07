@@ -107,7 +107,7 @@ jobs:
         with:
           bucket: gha-security-hosting-demo-chcamp
           dist-folder: ./dist
-          # bucket-region: us-east-2 . . > 33
+          # bucket-region: us-east-2 . . > 33 377
       - name: Output information
         run: |
           echo "Live URL: ${{ steps.deploy.outputs.website-url }}"

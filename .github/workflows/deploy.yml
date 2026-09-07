@@ -74,9 +74,24 @@ jobs:
           echo "Event: ${{ github.event_name }}"
 
       - name: Debug OIDC claims
-        uses: github/actions-oidc-debugger@main
-        with:
-          audience: sts.amazonaws.com   
+        shell: bash
+        run: |
+          TOKEN=$(curl -sSf \
+          -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
+          | jq -r '.value')
+
+          PAYLOAD=$(echo "$TOKEN" | cut -d '.' -f2)
+
+          PAYLOAD=$(python3 -c "
+          import base64, sys
+          s=sys.stdin.read().strip()
+          s += '=' * (-len(s) % 4)
+          print(base64.urlsafe_b64decode(s).decode())
+          " <<< "$PAYLOAD")
+
+          echo "$PAYLOAD" | jq -r '"AUD: \(.aud)"'
+          echo "$PAYLOAD" | jq -r '"SUB: \(.sub)"'
 
       - name: Get AWS Permissions
         uses: aws-actions/configure-aws-credentials@v4
@@ -92,7 +107,7 @@ jobs:
         with:
           bucket: gha-security-hosting-demo-chcamp
           dist-folder: ./dist
-          # bucket-region: us-east-2 . . > ,
+          # bucket-region: us-east-2 . . > 33
       - name: Output information
         run: |
           echo "Live URL: ${{ steps.deploy.outputs.website-url }}"
